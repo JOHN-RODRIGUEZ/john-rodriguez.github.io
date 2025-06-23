@@ -1,6 +1,7 @@
 $(document).ready(function() {
     let userName = '';
     let userAge = 0;
+    // Cargar los resultados desde localStorage o inicializar un array vacío
     let testResults = JSON.parse(localStorage.getItem('placaTestResults')) || [];
 
     var np = 60;
@@ -74,8 +75,7 @@ $(document).ready(function() {
     }
 
     function make_buttons() {
-        $(".button").remove();
-        $(".button2").remove();
+        $(".button, .button2").remove();
         const $currentPat = $("#pat" + placa);
         let scale = $currentPat.height() / 1098;
         if (($currentPat.width() / 1024) < scale) {
@@ -83,8 +83,7 @@ $(document).ready(function() {
         }
         let leftOffset = ($currentPat.width() - 1024 * scale) / 2;
         let topOffset = ($currentPat.height() - 1098 * scale) / 2;
-        let pos;
-        let cls;
+        let pos, cls;
         if (placa < 25) {
             pos = [[4, 675], [370, 675], [735, 675], [4, 919], [370, 919], [735, 919]];
             cls = "button";
@@ -93,14 +92,13 @@ $(document).ready(function() {
             cls = "button2";
         }
         for (let i = 0; i < pos.length; i++) {
-            const div = $('<div class="' + cls + '" id="but' + (i + 1) + '" />');
+            const div = $(`<div class="${cls}" id="but${i + 1}" />`);
             div.width((cls === "button" ? 285 : 218) * scale);
             div.height((cls === "button" ? 175 : 150) * scale);
             div.css({ top: topOffset + pos[i][1] * scale, left: leftOffset + pos[i][0] * scale });
             div.on('click', function() {
                 $(this).addClass("click");
-                $(".button").not(".click").remove();
-                $(".button2").not(".click").remove();
+                $(".button, .button2").not(".click").remove();
                 $("#pat" + placa).css({ opacity: 0 }); 
                 results += $(this).attr('id').substr(3); 
                 setTimeout(next_pattern, 200); 
@@ -110,11 +108,7 @@ $(document).ready(function() {
     }
 
     function next_pattern() {
-        if (placa === 0) {
-            placa = 1;
-        } else {
-            placa++;
-        }
+        placa = (placa === 0) ? 1 : placa + 1;
         if (placa <= np) {
             $("#pat" + placa).css({ backgroundImage: `url('placas/${placa}.png')`, opacity: 1 });
         }
@@ -132,15 +126,7 @@ $(document).ready(function() {
                 }
             }
             const { percentile, ci, group } = calculateRavenScores(correctAnswers, userAge);
-            $("#pat" + (np + 1)).html(`
-                <ul class='results'>
-                    <li>Respuestas correctas: ${correctAnswers}/${np}</li>
-                    <li>Percentil: ${percentile}</li>
-                    <li>Cociente intelectual: ${ci}</li>
-                    <li>Grupo: ${group}</li>
-                    <li>Tiempo empleado: ${totalTimeMinutes} minutos</li>
-                </ul>
-            `);
+            $("#pat" + (np + 1)).html(`<ul class='results'><li>Respuestas correctas: ${correctAnswers}/${np}</li><li>Percentil: ${percentile}</li><li>Cociente intelectual: ${ci}</li><li>Grupo: ${group}</li><li>Tiempo empleado: ${totalTimeMinutes} minutos</li></ul>`);
             saveResult(userName, userAge, correctAnswers, percentile, ci, group);
             setTimeout(() => {
                 displayResults();
@@ -158,44 +144,31 @@ $(document).ready(function() {
                 next_pattern(); 
                 return;
             }
-            const plateGroup = String.fromCharCode(((placa - 1) / 12) + 'A'.charCodeAt(0));
+            const plateGroup = String.fromCharCode(Math.floor((placa - 1) / 12) + 'A'.charCodeAt(0));
             const plateNumberInGroup = ((placa - 1) % 12) + 1;
-            $('#help').html(`
-                <h1>Placa ${plateGroup}${plateNumberInGroup}</h1>
-                Restan ${np - placa} placas<br />
-                Tiempo restante: ${timeLeftMinutes} minutos
-            `);
+            $('#help').html(`<h1>Placa ${plateGroup}${plateNumberInGroup}</h1>Restan ${np - placa} placas<br />Tiempo restante: ${timeLeftMinutes} minutos`);
             $('#help').css({ color: '#fff' });
         }, 100);
     }
 
     function saveResult(name, age, correctAnswers, percentile, ci, group) {
-        const date = new Date().toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit'
-        });
-        const newResult = {
-            name,
-            age,
-            correctAnswers,
-            percentile,
-            ci,
-            group,
-            date
-        };
-        testResults.push(newResult);
+        const date = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        testResults.push({ name, age, correctAnswers, percentile, ci, group, date });
         localStorage.setItem('placaTestResults', JSON.stringify(testResults));
     }
 
+    // ----- FUNCIÓN DE MOSTRAR RESULTADOS (MODIFICADA) -----
     function displayResults() {
         const $resultsTableBody = $('#resultsTable tbody');
-        $resultsTableBody.empty();
+        $resultsTableBody.empty(); // Limpiar la tabla antes de volver a dibujarla
         if (testResults.length === 0) {
-            $resultsTableBody.append('<tr><td colspan="7">No hay resultados anteriores.</td></tr>');
+            $resultsTableBody.append('<tr><td colspan="8">No hay resultados anteriores.</td></tr>');
             return;
         }
-        testResults.slice().reverse().forEach(result => {
+        // Usamos slice().reverse() para no modificar el array original y mostrar del más nuevo al más viejo
+        testResults.slice().reverse().forEach((result, index) => {
+            // El índice real en el array original (no invertido)
+            const originalIndex = testResults.length - 1 - index;
             const row = `
                 <tr>
                     <td>${result.name}</td>
@@ -205,41 +178,38 @@ $(document).ready(function() {
                     <td>${result.ci}</td>
                     <td>${result.group}</td>
                     <td>${result.date}</td>
+                    <td>
+                        <button class="delete-btn" data-index="${originalIndex}" style="padding: 5px 10px; background-color: #f0ad4e; color: white; border: none; border-radius: 3px; cursor: pointer;">Eliminar</button>
+                    </td>
                 </tr>
             `;
             $resultsTableBody.append(row);
         });
     }
 
-    // Function to export results to Excel
     function exportToExcel() {
         if (testResults.length === 0) {
             alert("No hay resultados para exportar.");
             return;
         }
-
         let csvContent = "data:text/csv;charset=utf-8,";
-        // Add header row
         csvContent += "Nombre,Edad,Correctas,Percentil,CI,Grupo,Fecha\n";
-
-        // Add data rows
         testResults.forEach(result => {
             let row = `${result.name},${result.age},${result.correctAnswers},${result.percentile},${result.ci},${result.group},${result.date}`;
             csvContent += row + "\n";
         });
-
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
         link.setAttribute("download", "resultados_test_raven.csv");
-        document.body.appendChild(link); // Required for Firefox
+        document.body.appendChild(link);
         link.click();
-        document.body.removeChild(link); // Clean up
+        document.body.removeChild(link);
     }
 
+    // Inicialización y manejadores de eventos
     if (is_touch_device()) {
-        const style = $("<style type='text/css'>").appendTo('head');
-        style.html(".button:hover, .button2:hover {opacity: 0.0;}");
+        $("<style type='text/css'>").appendTo('head').html(".button:hover, .button2:hover {opacity: 0.0;}");
     }
 
     const adjustFillHeight = () => {
@@ -249,50 +219,22 @@ $(document).ready(function() {
         const mainPadding = parseFloat($('#main').css('padding-top')) + parseFloat($('#main').css('padding-bottom'));
         const totalNonFillHeight = headerHeight + helpHeight + footerHeight + mainPadding;
         let desiredHeight = $(window).height() - totalNonFillHeight - 2;
-        if (desiredHeight < 300) desiredHeight = 300;
-        $("#fill").css({ height: desiredHeight });
+        $("#fill").css({ height: Math.max(desiredHeight, 300) });
     };
 
     for (let i = 1; i <= np; i++) {
-        const div = $("<div id='pat" + i + "' class='pat'/>");
-        div.appendTo($("#patterns"));
+        $("<div id='pat" + i + "' class='pat'/>").appendTo($("#patterns"));
     }
-    const finalDiv = $("<div id='pat" + (np + 1) + "' class='pat'/>");
-    finalDiv.html("Calculando resultados...");
-    finalDiv.appendTo($("#patterns"));
+    $("<div id='pat" + (np + 1) + "' class='pat'/>").html("Calculando resultados...").appendTo($("#patterns"));
 
     adjustFillHeight();
-
-    $("#header").mouseenter(function() {
-        $(this).addClass('bold');
-        adjustFillHeight();
-    });
-    $("#header").mouseleave(function() {
-        $(this).removeClass('bold');
-        adjustFillHeight();
-    });
-
-    $("#name").on('focusout', function() {
-        validatePersonalForm();
-    });
-    $("#age").on('focusout', function() {
-        validatePersonalForm();
-    });
-
     $(window).resize(function() {
         adjustFillHeight();
-        if (placa > 0 && placa <= np) {
-            setTimeout(make_buttons, 100);
-        }
+        if (placa > 0 && placa <= np) setTimeout(make_buttons, 100);
     });
 
-    $('#startTestFormBtn').on('click', function() {
-        if (validatePersonalForm()) {
-            showSection('info');
-        }
-    });
-
-    $('#startTestInfoBtn').on('click', function() {
+    $('#startTestFormBtn').on('click', () => { if (validatePersonalForm()) showSection('info'); });
+    $('#startTestInfoBtn').on('click', () => {
         startTestTime = Date.now();
         results = '';
         placa = 0;
@@ -303,19 +245,49 @@ $(document).ready(function() {
     });
 
     $('#viewResultsBtn').on('click', function() {
-        displayResults();
-        showSection('resultsContainer');
+        const inputUser = prompt("Para ver los resultados, ingrese el usuario:");
+        if (inputUser === null) return;
+        const inputPass = prompt("Ingrese la contraseña:");
+        if (inputPass === null) return;
+        if (inputUser === 'admin' && inputPass === 'admin123') {
+            displayResults();
+            showSection('resultsContainer');
+        } else {
+            alert("Usuario o contraseña incorrectos. Acceso denegado.");
+        }
     });
 
-    $('#backToFormBtn').on('click', function() {
+    $('#backToFormBtn').on('click', () => {
         showSection('personal');
         clearFormErrors();
-        $('#name').val('');
-        $('#age').val('');
-        $('#help').html('<h1>Bienvenido al Test de Raven</h1><br><p>Por favor, complete sus datos para comenzar.</p>');
-        $('#help').css({color: '#555'});
+        $('#name, #age').val('');
+        $('#help').html('<h1>Bienvenido al Test de Raven</h1><br>').css({color: '#555'});
+    });
+    
+    $('#exportExcelBtn').on('click', exportToExcel);
+
+    // ----- NUEVOS MANEJADORES DE EVENTOS PARA BORRAR -----
+
+    // 1. Para borrar un solo registro (usando delegación de eventos)
+    $('#resultsTable tbody').on('click', '.delete-btn', function() {
+        const indexToDelete = $(this).data('index'); // Obtener el índice del botón
+        
+        // Confirmación antes de borrar
+        if (confirm(`¿Está seguro de que desea eliminar el registro de ${testResults[indexToDelete].name}?`)) {
+            testResults.splice(indexToDelete, 1); // Eliminar el elemento del array
+            localStorage.setItem('placaTestResults', JSON.stringify(testResults)); // Actualizar localStorage
+            displayResults(); // Volver a dibujar la tabla
+        }
     });
 
-    // Event listener for the new Export to Excel button
-    $('#exportExcelBtn').on('click', exportToExcel);
+    // 2. Para borrar todos los registros
+    $('#clearAllResultsBtn').on('click', function() {
+        // Confirmación crucial para evitar borrado accidental
+        if (confirm('¿ESTÁ COMPLETAMENTE SEGURO de que desea eliminar TODOS los resultados? Esta acción no se puede deshacer.')) {
+            testResults = []; // Vaciar el array
+            localStorage.removeItem('placaTestResults'); // Limpiar el localStorage
+            displayResults(); // Volver a dibujar la tabla (que ahora estará vacía)
+            alert('Todos los resultados han sido eliminados.');
+        }
+    });
 });
