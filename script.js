@@ -126,12 +126,31 @@ $(document).ready(function() {
                 }
             }
             const { percentile, ci, group } = calculateRavenScores(correctAnswers, userAge);
-            $("#pat" + (np + 1)).html(`<ul class='results'><li>Respuestas correctas: ${correctAnswers}/${np}</li><li>Percentil: ${percentile}</li><li>Cociente intelectual: ${ci}</li><li>Grupo: ${group}</li><li>Tiempo empleado: ${totalTimeMinutes} minutos</li></ul>`);
+            
+            // Guardamos el resultado como antes, pero no lo mostramos en la última diapositiva
             saveResult(userName, userAge, correctAnswers, percentile, ci, group);
+            $("#pat" + (np + 1)).html(''); // Dejamos la última diapositiva en blanco
+
+            // ===== INICIO DE LA MODIFICACIÓN =====
+            // En lugar de mostrar la tabla de resultados, se muestra un mensaje final
+            // y se redirige al inicio después de unos segundos.
             setTimeout(() => {
-                displayResults();
-                showSection('resultsContainer');
-            }, 1000); 
+                // 1. Mostrar un mensaje final al usuario
+                $('#help').html('<h1>¡Gracias por completar el test!</h1><br>Serás redirigido al inicio.');
+                
+                // 2. Esperar un momento para que el usuario lea el mensaje y luego reiniciar.
+                setTimeout(() => {
+                    showSection('personal');   // Volver a la pantalla de datos personales
+                    clearFormErrors();         // Limpiar errores de validación si los hubo
+                    $('#name, #age').val('');  // Limpiar los campos del formulario
+                    
+                    // Restaurar el mensaje de bienvenida original
+                    $('#help').html('<h1>Bienvenido al Test de Raven</h1><br>').css({color: '#555'});
+                }, 2500); // Esperar 2.5 segundos antes de volver al inicio
+
+            }, 1000); // Esperar 1 segundo después de calcular resultados para mostrar el mensaje de "Gracias"
+            // ===== FIN DE LA MODIFICACIÓN =====
+            
             return;
         }
         setTimeout(make_buttons, 100);
@@ -153,21 +172,28 @@ $(document).ready(function() {
 
     function saveResult(name, age, correctAnswers, percentile, ci, group) {
         const date = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' });
-        testResults.push({ name, age, correctAnswers, percentile, ci, group, date });
+        
+        // Find if a result for this user already exists
+        const existingResultIndex = testResults.findIndex(result => result.name === name && result.age === age);
+
+        if (existingResultIndex !== -1) {
+            // Update the existing entry
+            testResults[existingResultIndex] = { name, age, correctAnswers, percentile, ci, group, date };
+        } else {
+            // Add a new entry
+            testResults.push({ name, age, correctAnswers, percentile, ci, group, date });
+        }
         localStorage.setItem('placaTestResults', JSON.stringify(testResults));
     }
-
-    // ----- FUNCIÓN DE MOSTRAR RESULTADOS (MODIFICADA) -----
+    
     function displayResults() {
         const $resultsTableBody = $('#resultsTable tbody');
-        $resultsTableBody.empty(); // Limpiar la tabla antes de volver a dibujarla
+        $resultsTableBody.empty(); 
         if (testResults.length === 0) {
             $resultsTableBody.append('<tr><td colspan="8">No hay resultados anteriores.</td></tr>');
             return;
         }
-        // Usamos slice().reverse() para no modificar el array original y mostrar del más nuevo al más viejo
         testResults.slice().reverse().forEach((result, index) => {
-            // El índice real en el array original (no invertido)
             const originalIndex = testResults.length - 1 - index;
             const row = `
                 <tr>
@@ -265,28 +291,22 @@ $(document).ready(function() {
     });
     
     $('#exportExcelBtn').on('click', exportToExcel);
-
-    // ----- NUEVOS MANEJADORES DE EVENTOS PARA BORRAR -----
-
-    // 1. Para borrar un solo registro (usando delegación de eventos)
+    
     $('#resultsTable tbody').on('click', '.delete-btn', function() {
-        const indexToDelete = $(this).data('index'); // Obtener el índice del botón
+        const indexToDelete = $(this).data('index'); 
         
-        // Confirmación antes de borrar
         if (confirm(`¿Está seguro de que desea eliminar el registro de ${testResults[indexToDelete].name}?`)) {
-            testResults.splice(indexToDelete, 1); // Eliminar el elemento del array
-            localStorage.setItem('placaTestResults', JSON.stringify(testResults)); // Actualizar localStorage
-            displayResults(); // Volver a dibujar la tabla
+            testResults.splice(indexToDelete, 1); 
+            localStorage.setItem('placaTestResults', JSON.stringify(testResults));
+            displayResults(); 
         }
     });
 
-    // 2. Para borrar todos los registros
     $('#clearAllResultsBtn').on('click', function() {
-        // Confirmación crucial para evitar borrado accidental
         if (confirm('¿ESTÁ COMPLETAMENTE SEGURO de que desea eliminar TODOS los resultados? Esta acción no se puede deshacer.')) {
-            testResults = []; // Vaciar el array
-            localStorage.removeItem('placaTestResults'); // Limpiar el localStorage
-            displayResults(); // Volver a dibujar la tabla (que ahora estará vacía)
+            testResults = []; 
+            localStorage.removeItem('placaTestResults');
+            displayResults(); 
             alert('Todos los resultados han sido eliminados.');
         }
     });
