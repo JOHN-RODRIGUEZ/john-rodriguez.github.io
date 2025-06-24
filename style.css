@@ -1,5 +1,26 @@
 
+/* 1. Contenedor de la tabla */
+.table-wrapper {
+  max-height: 350px;  /* Altura máxima antes de que aparezca el scroll. ¡Puedes ajustar este valor! */
+  overflow-y: auto;   /* Agrega el scroll vertical solo cuando sea necesario */
+  margin-top: 20px;   /* Mantiene la separación con el título */
+  border: 1px solid #ddd; /* Opcional: un borde para delimitar mejor el área */
+}
 
+/* 2. Tu estilo de tabla original (le quitamos el margen superior que ahora tiene el wrapper) */
+#resultsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0; /* Lo movemos al .table-wrapper */
+}
+
+
+/* 3. (Recomendado) Hacer que el encabezado de la tabla quede fijo al hacer scroll */
+#resultsTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Asegura que el encabezado esté por encima del contenido */
+}
 
 body {
     font-family: 'Lato', sans-serif;
