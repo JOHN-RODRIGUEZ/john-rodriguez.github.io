@@ -1,53 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenido</title>
-    <!-- Carga de Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        /* Aplicar la fuente Inter por defecto */
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
-    <!-- Contenedor principal para el mensaje de bienvenida y los botones -->
-    <div class="bg-white p-8 md:p-12 rounded-2xl shadow-xl max-w-lg w-full text-center">
-        <!-- Título de bienvenida -->
-        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800 mb-6 md:mb-8 animate-fade-in">
-            ¡Bienvenido!
-        </h1>
-        <p class="text-gray-600 text-lg mb-8 md:mb-10">
-            Usa los siguientes programas para comenzar:
-        </p>
-
-      
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
-           
-            <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75 w-full sm:w-auto"
-                    onclick="window.location.href='./test/index.html'">
-                TEST RAVEN
-            </button>
-            
-            <button class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-75 w-full sm:w-auto"
-                    onclick="window.location.href='./index2.html'">
-                Sistema de Evaluación Digital Automatizada (SEDA)
-            </button>
-        </div>
-    </div>
-
-    <!-- Animación simple para el fade-in del título -->
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.8s ease-out forwards;
-        }
-    </style>
-</body>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="./vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React + TS</title>
+    <script type="module" crossorigin src="./assets/index-DWy1nNUt.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BONUk4IP.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
 </html>
