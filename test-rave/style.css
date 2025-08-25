@@ -1,0 +1,246 @@
+
+/* 1. Contenedor de la tabla */
+.table-wrapper {
+  max-height: 350px;  /* Altura máxima antes de que aparezca el scroll. ¡Puedes ajustar este valor! */
+  overflow-y: auto;   /* Agrega el scroll vertical solo cuando sea necesario */
+  margin-top: 20px;   /* Mantiene la separación con el título */
+  border: 1px solid #ddd; /* Opcional: un borde para delimitar mejor el área */
+}
+
+/* 2. Tu estilo de tabla original (le quitamos el margen superior que ahora tiene el wrapper) */
+#resultsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0; /* Lo movemos al .table-wrapper */
+}
+
+
+/* 3. (Recomendado) Hacer que el encabezado de la tabla quede fijo al hacer scroll */
+#resultsTable thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1; /* Asegura que el encabezado esté por encima del contenido */
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+#main {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 90%;
+    max-width: 800px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 600px;
+    display: flex;
+    flex-direction: column;
+}
+
+#header {
+    height: 50px;
+    background-color: #007bff;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+#help {
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+#help h1 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+#help p {
+    color: #555;
+    line-height: 1.6;
+}
+
+#footer {
+    margin-top: auto;
+    padding-top: 20px;
+    color: #888;
+    font-size: 0.9em;
+}
+
+#personal, #info, #resultsContainer {
+    padding: 20px;
+    border-top: 1px solid #eee;
+    margin-top: 20px;
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    position: absolute;
+    width: calc(100% - 40px);
+    top: 100px;
+    left: 20px;
+    box-sizing: border-box;
+    height: auto;
+    z-index: 1;
+}
+
+#personal.active, #info.active, #resultsContainer.active {
+    opacity: 1;
+    transform: translateX(0);
+    display: block;
+    pointer-events: auto;
+}
+
+#personal.hidden, #info.hidden, #resultsContainer.hidden {
+    opacity: 0;
+    transform: translateX(100%);
+    pointer-events: none;
+}
+
+#form ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+#form li {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#form label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+#form input[type="text"],
+#form input[type="number"] {
+    width: calc(100% - 20px);
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+#form input[type="button"],
+#info input[type="button"],
+#resultsContainer button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+#form input[type="button"]:hover,
+#info input[type="button"]:hover,
+#resultsContainer button:hover {
+    background-color: #0056b3;
+}
+
+.error {
+    color: red;
+    font-size: 0.85em;
+    margin-top: 5px;
+    display: none;
+}
+
+#resultsTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#resultsTable th, #resultsTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+#resultsTable th {
+    background-color: #f2f2f2;
+    color: #333;
+}
+
+#resultsTable tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#resultsTable tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+#resultsContainer button {
+    margin: 15px 10px 0 0;
+}
+
+#fill {
+    display: none;
+    position: relative;
+    flex-grow: 1;
+    background-color: #e9e9e9;
+    border-radius: 5px;
+    margin-top: 20px;
+    padding: 20px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+#patterns {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    transition: left 0.5s ease-in-out;
+}
+
+.pat {
+    flex-shrink: 0;
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+    color: #555;
+    text-align: center;
+}
+
+.button, .button2 {
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    opacity: 1;
+    transition: opacity 0.2s ease;
+}
+
+.button:hover, .button2:hover {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+.button.click, .button2.click {
+    background-color: rgba(0, 123, 255, 0.5);
+    border-color: #007bff;
+}
